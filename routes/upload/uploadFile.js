@@ -33,21 +33,6 @@ module.exports = async (req, res) => {
     uploadedFile.mv(file.path, function (err) {
       if (err) return res.status(500).send(err);
 
-      // Read the file to calculate MD5 hash
-      const fileData = fs.readFileSync(file.path);
-
-      const md5sum = crypto.createHash("md5");
-      const calculatedMD5 = md5sum.update(fileData).digest("hex");
-
-      const fileMD5 = file.md5; // MD5 checksum provided by express-fileupload
-
-      // Perform file verification using the checksums
-      if (fileMD5 !== calculatedMD5) {
-        // Handle verification failure (checksums don't match)
-        fs.unlinkSync(filePath); // Remove the file if verification fails
-        return res.status(400).send("MD5 checksum verification failed for " + file.name);
-      }
-
       return res.json({
         status: "success",
         message: "Successfull upload!",

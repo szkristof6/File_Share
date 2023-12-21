@@ -1,3 +1,6 @@
+const uploadSpeedBox = document.querySelector("#uploadSpeed");
+const remainingTimeBox = document.querySelector("#remainingTime");
+
 let startTime;
 let fileSize = 0;
 let elapsedTime = 0;
@@ -21,7 +24,6 @@ function formatTime(seconds) {
 
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
 
   let timeString = "";
   if (hours > 0) {
@@ -36,16 +38,13 @@ function formatTime(seconds) {
   return timeString;
 }
 
-const uploadSpeed = document.getElementById("uploadSpeed");
-const remainingTime = document.getElementById("remainingTime");
-
-function updateUploadSpeed(size, time) {
+const updateUploadSpeed = (size, time) => {
   const uploadSpeed = size / (time / 1000);
   const formattedSpeed = formatBytes(uploadSpeed) + "/s";
-  uploadSpeed.innetText = `Upload Speed: ${formattedSpeed}`;
+  uploadSpeedBox.innerText = `Upload Speed: ${formattedSpeed}`;
 }
 
-function updateRemainingTime(progress) {
+const updateRemainingTime = (progress) => {
   const currentTime = new Date().getTime();
   const uploaded = (fileSize * progress) / 100;
   const remainingSize = fileSize - uploaded;
@@ -54,7 +53,7 @@ function updateRemainingTime(progress) {
   const uploadSpeed = uploaded / elapsedTime;
 
   const remainingTimeSeconds = remainingSize / uploadSpeed;
-  remainingTime.innetText = `Remaining Time: ${formatTime(remainingTimeSeconds)}`;
+  remainingTimeBox.innerText = `Remaining Time: ${formatTime(remainingTimeSeconds)}`;
 }
 
 Dropzone.options.uploadZone = {
@@ -72,19 +71,20 @@ Dropzone.options.uploadZone = {
     this.on("uploadprogress", function (file, progress) {
       updateUploadSpeed((fileSize * progress) / 100, new Date().getTime() - startTime);
       updateRemainingTime(progress);
+
     });
 
     this.on("success", function (file, response) {
       console.log("File upload successful:", file, response);
-      uploadSpeed.innerHTML = "";
-      remainingTime.innerHTML = "";
+      uploadSpeedBox.innerHTML = "";
+      remainingTimeBox.innerHTML = "";
     });
 
     this.on("error", function (file, errorMessage, xhr) {
       console.error("File upload error:", file, errorMessage, xhr);
 
-      uploadSpeed.innerHTML = "";
-      remainingTime.innerHTML = "";
+      uploadSpeedBox.innerHTML = "";
+      remainingTimeBox.innerHTML = "";
     });
   },
 };
