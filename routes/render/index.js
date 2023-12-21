@@ -1,15 +1,7 @@
 const File = require("../../models/File");
 const ShareKey = require("../../models/ShareKey");
 
-// Function to format bytes to appropriate units
-function formatBytes(bytes, decimals = 2) {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-}
+const { formatBytes, getStorageSpace } = require("./utils");
 
 module.exports = async (req, res) => {
   if (req.isAuthenticated()) {
@@ -41,7 +33,11 @@ module.exports = async (req, res) => {
         }
       });
 
-      res.render("index", { files: filesWithSharedStatus, user: req.user._json });
+      res.render("index", {
+        files: filesWithSharedStatus,
+        user: req.user._json,
+        diskSpace: await getStorageSpace()
+      });
     } catch (err) {
       console.error("Error fetching files:", err);
       res.status(500).send("Error fetching files");

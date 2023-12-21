@@ -1,0 +1,51 @@
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-dark fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="/images/logo.png" alt="App Logo" height="60" class="d-inline-block align-top" />
+    </a>
+
+    <div class="rounded-end bg-white p-2" style="border-radius: 10px; color: black">
+      <!-- Right rounded rectangle -->
+      <div class="navbar-collapse justify-content-end">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Files</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/upload/">Upload</a>
+            </li>
+            <li class="nav-item">
+              <span class="nav-link active">Remaining Space: <%= diskSpace.free %></span>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-light rounded-circle d-flex justify-content-center align-items-center p-0" onclick="logout()" style="width: 2.5rem; height: 2.5rem">
+                <!-- Logout SVG icon -->
+                <img src="/images/logout-icon.png" alt="Logout" height="24" width="24" />
+                <!-- End of Logout SVG icon -->
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Right rounded rectangle -->
+  </div>
+</nav>
+
+<script>
+  // Get the current URL pathname
+  const path = window.location.pathname;
+
+  // Find the links and set the active class based on the URL
+  const links = Array.from(document.querySelectorAll("a.nav-link"));
+  const link = links.filter(link => link.getAttribute("href") === path)[0];
+
+  link.classList.add("active");
+  link.classList.add("disabled");
+</script>
