@@ -1,0 +1,69 @@
+body {
+    background-color: black;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .audio-box {
+    display: flex;
+    flex-direction: column;
+    width: calc(100vw / 2);
+    align-items: center;
+  }
+
+  #pauseIcon {
+    display: none;
+  }
+
+  .box {
+    background-color: white;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 5px;
+    padding: 10px;
+  }
+
+  .control-box {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 3fr min-content;
+    grid-template-areas: "one two";
+
+    width: 100%;
+  }
+
+  .player-box {
+    display: flex;
+    grid-area: one;
+  }
+
+  .volume-box {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: flex-start;
+    grid-area: two;
+  }
+
+  .volume-slider {
+    transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out; /* Adding transition for smooth width animation */
+    opacity: 0; /* Initial opacity set to 0 */
+    width: 0;
+  }
+
+  .volume-box:hover .volume-slider {
+    opacity: 1; /* Set opacity to 1 on hover */
+    width: 100%;
+  }
+
+  .time-box {
+    width: 98%;
+    text-align: center;
+    font-size: large;
+    font-weight: bold;
+  }

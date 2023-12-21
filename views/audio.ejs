@@ -1,0 +1,74 @@
+<!-- musicPlayer.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>MEG - Audio Player</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/audio.css" />
+  </head>
+  <body>
+    <img src="/images/logo.png" alt="App Logo" height="100" />
+
+    <div class="audio-box">
+      <div class="time-box box">
+        <p class="mt-3 mb-3"><%= name %></p>
+      </div>
+      <div class="control-box">
+        <div class="player-box box">
+          <audio id="audio" preload="metadata"></audio>
+          <button id="playPauseBtn" class="btn btn-light">
+            <img id="playIcon" src="/images/icons/play-icon.png" alt="Play" height="32" />
+            <img id="pauseIcon" src="/images/icons/pause-icon.png" alt="Pause" height="32" />
+          </button>
+          <input id="seek" type="range" class="form-control-range mr-3" min="0" max="100" value="0" />
+        </div>
+
+        <div class="volume-box box">
+          <button class="btn btn-light" id="muteBtn">
+            <img src="/images/icons/sound-icon.png" alt="Sound Icon" height="32" />
+          </button>
+          <input id="volume" type="range" class="volume-slider" min="0" max="100" value="50" />
+        </div>
+      </div>
+      <div class="time-box box">
+        <p id="timeDisplay" class="mt-3 mb-3">00:00 / 00:00</p>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+      const audio = new Howl({
+        src: ["/get/<%= shareableLink %>"],
+        html5: true,
+        preload: "metadata",
+        volume: 0.5, // Set initial volume (0.0 to 1.0)
+        onplay: function () {
+          playIcon.style.display = "none";
+          pauseIcon.style.display = "inline-block";
+          updateSeek(); // Update seek position when audio starts playing
+        },
+        onpause: function () {
+          playIcon.style.display = "inline-block";
+          pauseIcon.style.display = "none";
+        },
+        onload: function () {
+          seekSlider.max = audio.duration();
+        },
+        onseek: function () {
+          updateSeek(); // Update seek position when audio is seeked
+        },
+      });
+    </script>
+
+    <script src="/js/audio.js"></script>
+  </body>
+</html>
