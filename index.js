@@ -17,6 +17,9 @@ app.post("/share/:id", require("./routes/share/shareFile"));
 // Route to view a file using shareable link
 app.get("/view/:shareableLink", require("./routes/share/viewShare"));
 
+// Route to get a file using shareable link
+app.get("/get/:shareableLink", require("./routes/share/getShare"));
+
 // Route to upload a file
 app.post("/upload", require("./routes/upload/uploadFile"));
 

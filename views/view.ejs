@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>View Video</title>
+    <!-- Include Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
+    <link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet" />
+
+    <!-- Custom styles -->
+    <style>
+      /* Your custom styles here */
+      body {
+        background-color: black;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        border-radius: 15px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Logo -->
+    <div class="container">
+      <img src="/images/logo.png" alt="Logo" height="100" />
+    </div>
+
+    <!-- Video Player -->
+    <div class="container">
+      <video id="video" class="video-js vjs-theme-forest" controls preload="auto" width="960" height="540">
+        <source src="/get/<%= shareableLink %>" type="video/mp4" />
+        <!-- Add other video sources if needed -->
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Include Video.js library -->
+    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+    <script>
+      // Initialize Video.js player
+      var player = videojs("video");
+    </script>
+  </body>
+</html>
