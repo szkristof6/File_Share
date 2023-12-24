@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           })
           .then((data) => {
-            shareLink.value = `${window.location.origin}/view/${data.shareableLink}`;
+            shareLink.value = `${window.location.origin}/${data.shareableLink}`;
 
             button.removeChild(spinner);
 
@@ -114,5 +114,70 @@ document.addEventListener("DOMContentLoaded", () => {
           });
       }
     });
+  });
+
+  // JavaScript for sorting the table
+
+  function newSortDirection(button, current) {
+    if (current === button.querySelector("img")) {
+      return current.classList.contains("asc") ? "desc" : "asc";
+    }
+    return "asc";
+  }
+
+  const sortButtons = document.querySelectorAll("thead th#sortable");
+  sortButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const currentSort = document.querySelector("img.arrow");
+
+      const textContent = button.innerText.toLowerCase().trim();
+      const sortable = ["name", "size", "type", "views"];
+
+      if (sortable.includes(textContent)) {
+        const query = {
+          sort: textContent,
+          dir: newSortDirection(button, currentSort),
+        };
+
+        if (currentSort === button.querySelector("img")) {
+          const sortDir = currentSort.classList.contains("asc");
+
+          updateArrowIndicator(currentSort, !sortDir);
+        } else {
+          currentSort.remove();
+
+          createArrowIndicator(button);
+        }
+
+        window.location.href = `${window.location.origin}/search?${new URLSearchParams(query).toString()}`;
+      }
+    });
+  });
+
+  function updateArrowIndicator(button, isAscending) {
+    button.classList.toggle("asc");
+    button.classList.toggle("desc");
+
+    button.src = isAscending ? "/images/icons/arrow-asc.svg" : "/images/icons/arrow-desc.svg";
+  }
+
+  function createArrowIndicator(parent) {
+    const image = document.createElement("img");
+    image.classList.add("arrow");
+    image.classList.add("asc");
+
+    image.src = "/images/icons/arrow-asc.svg";
+
+    parent.appendChild(image);
+  }
+
+  // Search functionality
+  document.getElementById("searchInput").addEventListener("input", function () {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const queryParams = Object.fromEntries(urlSearchParams.entries());
+
+    queryParams.search = this.value.toUpperCase();
+
+    window.location.href = `${window.location.origin}/search?${new URLSearchParams(queryParams).toString()}`;
   });
 });

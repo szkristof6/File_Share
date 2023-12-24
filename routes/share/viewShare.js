@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
 
   const updatedViews = (shareKey.views += 1);
 
-  ShareKey.updateOne({ key: shareableLink }, { views: updatedViews });
+  await ShareKey.updateOne({ key: shareableLink }, { views: updatedViews });
 
   if (file.mimeType.startsWith("audio")) {
     // Render audio template
