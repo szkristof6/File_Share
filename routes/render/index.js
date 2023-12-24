@@ -27,6 +27,7 @@ module.exports = async (req, res) => {
             ...object,
             isShared: shareableLink !== undefined,
             shareableLink: shareableLink !== undefined && shareableLink.key,
+            viewCount: shareableLink !== undefined && shareableLink.views,
           };
         } else {
           return object;

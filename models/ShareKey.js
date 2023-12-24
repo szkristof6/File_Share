@@ -7,6 +7,10 @@ const shareKeySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "File",
   },
+  views: {
+    type: Number, 
+    default: 0,
+  }
 });
 
 module.exports = mongoose.model("ShareKey", shareKeySchema);

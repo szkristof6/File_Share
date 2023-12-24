@@ -11,10 +11,15 @@ module.exports = async (req, res) => {
   // Remove the file from the 'uploads' directory
   fs.unlink(file.path, (err) => {
     if (err) {
-      console.error("Error removing file:", err);
-      res.status(500).send("Error removing file");
+      return res.status(500).json({
+        status: "error",
+        message: err.message,
+      });
     } else {
-      res.send("File removed successfully");
+      return res.json({
+        status: "success",
+        message: "File removed successfully",
+      });
     }
   });
 

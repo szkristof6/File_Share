@@ -10,14 +10,20 @@ module.exports = async (req, res) => {
     const shareKey = await ShareKey.findOne({ key: shareableLink });
 
     if (!shareKey) {
-      return res.status(404).send("File not found");
+      return res.status(404).json({
+        status: "error",
+        message: "File not found",
+      });
     }
 
     // Find the file associated with the ShareKey
     const file = await File.findById(shareKey.file);
 
     if (!file) {
-      return res.status(404).send("File not found");
+      return res.status(404).json({
+        status: "error",
+        message: "File not found",
+      });
     }
 
     const range = req.headers.range;
@@ -48,7 +54,9 @@ module.exports = async (req, res) => {
       fileStream.pipe(res);
     }
   } catch (err) {
-    console.error("Error viewing file:", err);
-    res.status(500).send("Error viewing file");
+    return res.status(500).json({
+      status: "error",
+      message: "Error viewing file",
+    });
   }
 };

@@ -1,4 +1,5 @@
 const checkDiskSpace = require("check-disk-space").default;
+require("dotenv").config();
 
 function formatBytes (bytes, decimals = 2) {
     if (bytes === 0) return "0 Bytes";
@@ -10,7 +11,7 @@ function formatBytes (bytes, decimals = 2) {
   };
 
   async function getStorageSpace() {
-    const diskSpace = await checkDiskSpace(process.cwd());
+    const diskSpace = await checkDiskSpace(process.env.STORAGE_LOCATION);
     
     return {
       free: formatBytes(diskSpace.free),

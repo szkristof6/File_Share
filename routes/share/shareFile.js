@@ -19,7 +19,9 @@ module.exports = async (req, res) => {
 
     res.json({ shareableLink });
   } catch (err) {
-    console.error("Error sharing file:", err);
-    res.status(500).send("Error sharing file");
+    return res.status(500).json({
+      status: "error",
+      message: "Error sharing file",
+    });
   }
 };

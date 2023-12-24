@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
-const crypto = require("crypto");
-const fs = require('fs');
+require("dotenv").config();
+
 const File = require("../../models/File");
 
 module.exports = async (req, res) => {
@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
       size: uploadedFile.size,
       mimeType: uploadedFile.mimetype,
       md5: uploadedFile.md5,
-      path: `${process.cwd()}/uploads/${uniqueIdentifier}`, // This assumes files are stored in the 'uploads' directory
+      path: `${process.env.STORAGE_LOCATION}/${uniqueIdentifier}`, // This assumes files are stored in the 'uploads' directory
       owner: req.user._json.email,
     });
 

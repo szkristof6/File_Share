@@ -8,15 +8,25 @@ module.exports = async (req, res) => {
   const shareKey = await ShareKey.findOne({ key: shareableLink });
 
   if (!shareKey) {
-    return res.status(404).send("File not found");
+    return res.status(404).json({
+      status: "error",
+      message: "File not found",
+    });
   }
 
   // Find the file associated with the ShareKey
   const file = await File.findById(shareKey.file);
 
   if (!file) {
-    return res.status(404).send("File not found");
+    return res.status(404).json({
+      status: "error",
+      message: "File not found",
+    });
   }
+
+  const updatedViews = (shareKey.views += 1);
+
+  ShareKey.updateOne({ key: shareableLink }, { views: updatedViews });
 
   if (file.mimeType.startsWith("audio")) {
     // Render audio template

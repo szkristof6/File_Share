@@ -35,6 +35,7 @@
               <th scope="col">File Name</th>
               <th scope="col">Size</th>
               <th scope="col">Type</th>
+              <th scope="col">Views</th>
               <th>Actions</th>
               <!-- Add other columns as needed -->
             </tr>
@@ -50,6 +51,7 @@
               </td>
               <td><%= file.size %></td>
               <td><%= file.type %></td>
+              <td><%= file.viewCount %></td>
               <td>
                 <button class="btn btn-danger delete-btn" data-file-id="<%= file._id %>">Remove</button>
 

@@ -8,12 +8,20 @@ module.exports = async (req, res) => {
     const shareLink = await ShareKey.findOneAndDelete({ file: fileId });
 
     if (!shareLink) {
-      return res.status(404).send("Share link not found");
+      return res.status(404).json({
+        status: "error",
+        message: "Share link not found",
+      });
     }
 
-    res.status(200).send("Share link removed");
+    return res.json({
+      status: "success",
+      message: "Share link removed!",
+    });
   } catch (err) {
-    console.error("Error removing share link:", err);
-    res.status(500).send("Error removing share link");
+    return res.status(500).json({
+      status: "error",
+      message: "Error removing share link",
+    });
   }
 };
