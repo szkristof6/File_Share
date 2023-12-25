@@ -13,8 +13,10 @@ module.exports = async (req, res) => {
   for (let fileKey in uploadedFiles) {
     const uploadedFile = uploadedFiles[fileKey];
 
+    const extension = uploadedFile.name.split('.').pop();
+
     // Generate a unique identifier (UUID) for the file
-    const uniqueIdentifier = `${uuidv4()}-${Date.now()}`; // Combining UUID with current timestamp
+    const uniqueIdentifier = `${uuidv4()}-${Date.now()}.${extension}`; // Combining UUID with current timestamp
 
     // Create a new File object with uploaded file information
     const file = new File({

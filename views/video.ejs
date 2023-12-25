@@ -3,15 +3,14 @@
   <head>
     <title>MEG - Video Player</title>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png" />
 
     <!-- Include Video.js CSS -->
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
     <link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet" />
 
     <link href="/css/video.css" rel="stylesheet" />
-
   </head>
   <body>
     <!-- Logo -->
@@ -21,9 +20,8 @@
 
     <!-- Video Player -->
     <div class="container">
-      <video id="video" class="video-js vjs-theme-forest" controls preload="auto" width="960" height="540">
+      <video id="video" class="video-js vjs-theme-forest" controls preload="auto" width="960" height="540" playsinline poster="https://i.pinimg.com/originals/cd/bc/f0/cdbcf077b62246123f74fcc919587b0b.jpg" data-setup="{}">
         <source src="/get/<%= shareableLink %>" type="<%= mimeType %>" />
-        <!-- Add other video sources if needed -->
         Your browser does not support the video tag.
       </video>
     </div>
@@ -32,6 +30,5 @@
     <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
 
     <script src="/js/video.js"></script>
-    
   </body>
 </html>

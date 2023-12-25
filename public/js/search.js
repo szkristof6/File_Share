@@ -306,6 +306,7 @@ function displayData(data) {
     displayNoFiles(tbody);
 
     table.appendChild(tbody);
+    tableParent.appendChild(table);
   }
 
   if (files.length > 0) {

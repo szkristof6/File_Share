@@ -28,17 +28,14 @@ module.exports = async (req, res) => {
 
     const range = req.headers.range;
     if (range) {
-      const stat = fs.statSync(file.path);
-      const fileSize = stat.size;
-
-      const CHUNK_SIZE = 10 ** 6; // 1MB chunk size (adjust as needed)
-      const start = Number(range.replace(/\D/g, ""));
-      const end = Math.min(start + CHUNK_SIZE, fileSize - 1);
-
+      
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : file.size - 1;
       const contentLength = end - start + 1;
-
+      
       const headers = {
-        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Content-Range": `bytes ${start}-${end}/${file.size}`,
         "Accept-Ranges": "bytes",
         "Content-Length": contentLength,
         "Content-Type": file.mimeType,
@@ -49,9 +46,12 @@ module.exports = async (req, res) => {
       const fileStream = fs.createReadStream(file.path, { start, end });
       fileStream.pipe(res);
     } else {
-      // Stream the entire video if no range is provided
-      const fileStream = fs.createReadStream(file.path);
-      fileStream.pipe(res);
+      const head = {
+        "Content-Length": file.size,
+        "Content-Type": file.mimeType,
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(file.path).pipe(res);
     }
   } catch (err) {
     return res.status(500).json({
