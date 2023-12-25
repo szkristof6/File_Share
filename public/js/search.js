@@ -159,6 +159,7 @@ function createRemoveButton(parent, file) {
         .then((response) => {
           if (response.ok) {
             removeButton.removeChild(spinner);
+            
             removeButton.parentElement.parentElement.remove();
           } else {
             throw new Error("Error deleting file");
