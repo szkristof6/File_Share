@@ -1,4 +1,4 @@
-const { getStorageSpace } = require("./utils");
+const { getStorageSpace } = require("../utils");
 
 module.exports = async (req, res) => {
   if (req.isAuthenticated()) {

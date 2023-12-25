@@ -5,16 +5,12 @@ const app = require("./middlewares");
 require("./mongodb"); // Connect to MongoDB
 
 // Endpoint to display files using EJS
-app.get("/", (req, res) => {
-  if (!req.isAuthenticated()) {
-    res.redirect("/auth/google");
-  } else {
-    res.redirect("/search");
-  }
-});
+app.get("/", (req, res) => (!req.isAuthenticated() ? res.redirect("/auth/google") : res.redirect("/search")));
 
 
 app.get("/search", require("./routes/render/search"));
+app.get("/search/get", require("./routes/search/getFiles"));
+
 app.get("/upload", require("./routes/render/upload"));
 
 // Route to remove the share link associated with a file

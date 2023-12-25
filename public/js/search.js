@@ -1,183 +1,361 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const deleteButtons = document.querySelectorAll(".delete-btn");
+const urlSearchParams = new URLSearchParams(window.location.search);
+const queryParams = Object.fromEntries(urlSearchParams.entries());
+let isHeaderDisplayed = false;
 
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const fileId = button.getAttribute("data-file-id");
-
-      const modal = new bootstrap.Modal(document.getElementById("removeFileModal"));
-      modal.show();
-
-      const confirmButton = document.getElementById("confirmRemove");
-      confirmButton.onclick = function () {
-        const spinner = document.createElement("div");
-        spinner.className = "spinner-border text-light";
-        spinner.setAttribute("role", "status");
-
-        button.replaceChild(spinner, button.childNodes[0]);
-
-        modal.hide();
-
-        fetch(`/delete/${fileId}`, {
-          method: "POST",
-        })
-          .then((response) => {
-            if (response.ok) {
-              button.removeChild(spinner);
-              button.parentElement.parentElement.remove();
-            } else {
-              throw new Error("Error deleting file");
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("An error occurred while deleting the file");
-          });
-      };
-    });
-  });
-
-  const shareButtons = document.querySelectorAll(".share-btn");
-  const shareLink = document.getElementById("shareLink");
-
-  shareButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const fileId = button.getAttribute("data-file-id");
-      const isShared = button.innerText === "Remove Share";
-
-      const spinner = document.createElement("div");
-      spinner.className = "spinner-border text-light";
-      spinner.setAttribute("role", "status");
-
-      button.replaceChild(spinner, button.childNodes[0]);
-
-      if (!isShared) {
-        fetch(`/share/${fileId}`, {
-          method: "POST",
-        })
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error("Error sharing file");
-            }
-          })
-          .then((data) => {
-            shareLink.value = `${window.location.origin}/${data.shareableLink}`;
-
-            button.removeChild(spinner);
-
-            button.innerText = "Remove Share";
-
-            button.classList.toggle("btn-primary");
-            button.classList.toggle("btn-warning");
-
-            const modal = new bootstrap.Modal(document.getElementById("shareFileModal"));
-
-            const copyButton = document.getElementById("copyToClipboard");
-            copyButton.addEventListener("click", () => {
-              const shareLink = document.getElementById("shareLink");
-              shareLink.select();
-              document.execCommand("copy");
-
-              copyButton.innerText = "Copied to clipboard";
-              copyButton.classList.remove("btn-info");
-              copyButton.classList.add("btn-success");
-            });
-
-            modal.show();
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("An error occurred while sharing the file");
-          });
+async function getData(queryParams) {
+  return fetch(`/search/get?${new URLSearchParams(queryParams).toString()}`, {
+    method: "GET",
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
       } else {
-        // Perform remove share logic (change button text back to "Share")
-        fetch(`/removeShare/${fileId}`, {
-          method: "DELETE",
-        })
-          .then((response) => {
-            if (response.ok) {
-              button.removeChild(spinner);
-
-              button.innerText = "Share";
-
-              button.classList.toggle("btn-primary");
-              button.classList.toggle("btn-warning");
-            } else {
-              throw new Error("Error removing share");
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("An error occurred while removing the share");
-          });
+        throw new Error("Error deleting file");
       }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
     });
-  });
+}
 
-  // JavaScript for sorting the table
+function createArrowIndicator(parent, dir = "asc") {
+  const arrowImage = document.createElement("img");
+  arrowImage.src = `/images/icons/arrow-${dir}.svg`;
+  arrowImage.alt = dir;
+  arrowImage.classList.add("arrow", dir);
 
-  function newSortDirection(button, current) {
-    if (current === button.querySelector("img")) {
-      return current.classList.contains("asc") ? "desc" : "asc";
-    }
-    return "asc";
+  parent.appendChild(arrowImage);
+}
+
+function newSortDirection(button, current) {
+  if (current === button.querySelector("img")) {
+    return current.classList.contains("asc") ? "desc" : "asc";
   }
+  return "asc";
+}
 
-  const sortButtons = document.querySelectorAll("thead th#sortable");
-  sortButtons.forEach((button) => {
-    button.addEventListener("click", () => {
+function updateArrowIndicator(button, isAscending) {
+  button.classList.toggle("asc");
+  button.classList.toggle("desc");
+
+  button.src = isAscending ? "/images/icons/arrow-asc.svg" : "/images/icons/arrow-desc.svg";
+}
+
+function getUpdatedData() {
+  let nextURL;
+  if (queryParams.length === 0) {
+    nextURL = `${window.location.origin}/search`;
+  } else {
+    nextURL = `${window.location.origin}/search?${new URLSearchParams(queryParams).toString()}`;
+  }
+  window.history.pushState({}, null, nextURL);
+
+  getData(queryParams).then((data) => displayData(data));
+}
+
+function displayTableHeder(parent) {
+  const columnNames = [
+    { name: "#", sortable: false },
+    { name: "Name", sortable: true },
+    { name: "Size", sortable: true },
+    { name: "Type", sortable: true },
+    { name: "Views", sortable: true },
+    { name: "Actions", sortable: false },
+  ];
+
+  const thead = document.createElement("thead");
+  const theadTr = document.createElement("tr");
+
+  columnNames.forEach((columnName) => {
+    const nameTh = document.createElement("th");
+    nameTh.scope = "col";
+    if (columnName.sortable) nameTh.id = "sortable";
+
+    nameTh.innerText = columnName.name;
+    if (queryParams.sort) {
+      if (queryParams.sort.toLowerCase().trim() === columnName.name.toLowerCase()) {
+        createArrowIndicator(nameTh, queryParams.dir);
+
+        //<img src="/images/icons/arrow-<%= sort.dir %>.svg" alt="<%= sort.dir %>" class="arrow <%= sort.dir %>" />
+      }
+    } else {
+      if (columnName.name == "Name") {
+        createArrowIndicator(nameTh);
+      }
+    }
+
+    // Sort table
+    nameTh.addEventListener("click", () => {
       const currentSort = document.querySelector("img.arrow");
 
-      const textContent = button.innerText.toLowerCase().trim();
-      const sortable = ["name", "size", "type", "views"];
+      if (columnName.sortable) {
+        queryParams.sort = columnName.name.toLowerCase();
+        queryParams.dir = newSortDirection(nameTh, currentSort);
 
-      if (sortable.includes(textContent)) {
-        const query = {
-          sort: textContent,
-          dir: newSortDirection(button, currentSort),
-        };
-
-        if (currentSort === button.querySelector("img")) {
+        if (currentSort === nameTh.querySelector("img")) {
           const sortDir = currentSort.classList.contains("asc");
 
           updateArrowIndicator(currentSort, !sortDir);
         } else {
           currentSort.remove();
 
-          createArrowIndicator(button);
+          createArrowIndicator(nameTh);
         }
 
-        window.location.href = `${window.location.origin}/search?${new URLSearchParams(query).toString()}`;
+        getUpdatedData();
+
+        //window.location.href = `${window.location.origin}/search?${new URLSearchParams(queryParams).toString()}`;
       }
+    });
+
+    isHeaderDisplayed = true;
+
+    theadTr.appendChild(nameTh);
+  });
+
+  thead.appendChild(theadTr);
+  parent.appendChild(thead);
+}
+
+function displayNoFiles(parent) {
+  const noFilesDiv = document.createElement("div");
+  noFilesDiv.id = "no-files";
+  noFilesDiv.innerText = "No files found.";
+
+  parent.appendChild(noFilesDiv);
+}
+
+function displaySpinner(parent) {
+  const spinner = document.createElement("div");
+  spinner.className = "spinner-border text-light";
+  spinner.setAttribute("role", "status");
+
+  parent.replaceChild(spinner, parent.childNodes[0]);
+
+  return spinner;
+}
+
+function createRemoveButton(parent, file) {
+  const modal = new bootstrap.Modal(document.getElementById("removeFileModal"));
+
+  const removeButton = document.createElement("button");
+  removeButton.classList.add("btn", "btn-danger", "delete-btn");
+  removeButton.innerText = "Remove";
+
+  removeButton.style.marginRight = "5px";
+
+  removeButton.addEventListener("click", () => {
+    modal.show();
+
+    const confirmButton = document.getElementById("confirmRemove");
+    confirmButton.addEventListener("click", () => {
+      const spinner = displaySpinner(removeButton);
+
+      modal.hide();
+
+      fetch(`/delete/${file._id}`, {
+        method: "POST",
+      })
+        .then((response) => {
+          if (response.ok) {
+            removeButton.removeChild(spinner);
+            removeButton.parentElement.parentElement.remove();
+          } else {
+            throw new Error("Error deleting file");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while deleting the file");
+        });
     });
   });
 
-  function updateArrowIndicator(button, isAscending) {
-    button.classList.toggle("asc");
-    button.classList.toggle("desc");
+  parent.appendChild(removeButton);
+}
 
-    button.src = isAscending ? "/images/icons/arrow-asc.svg" : "/images/icons/arrow-desc.svg";
+function createCopyLinkField(url, linkElement) {
+  linkElement.value = `${window.location.origin}/${url}`;
+
+  const copyButton = document.getElementById("copyToClipboard");
+  if (copyButton.classList.contains("btn-success")) {
+    copyButton.classList.remove("btn-success");
+    copyButton.classList.add("btn-info");
+    copyButton.innerText = "Copy to clipboard";
   }
 
-  function createArrowIndicator(parent) {
-    const image = document.createElement("img");
-    image.classList.add("arrow");
-    image.classList.add("asc");
+  copyButton.addEventListener("click", () => {
+    // Select the text field
+    linkElement.select();
+    linkElement.setSelectionRange(0, 99999); // For mobile devices
 
-    image.src = "/images/icons/arrow-asc.svg";
+    // Copy the text inside the text field
+    navigator.clipboard.writeText(linkElement.value);
 
-    parent.appendChild(image);
+    copyButton.innerText = "Copied to clipboard";
+    copyButton.classList.remove("btn-info");
+    copyButton.classList.add("btn-success");
+  });
+}
+
+function createNameWithLink(parent, url, name) {
+  const shareLink = document.createElement("a");
+  shareLink.href = url;
+  shareLink.target = "_blank";
+  shareLink.innerText = name;
+
+  parent.appendChild(shareLink);
+}
+
+function createShareButton(parent, file, nameField) {
+  const modal = new bootstrap.Modal(document.getElementById("shareFileModal"));
+  const fileName = nameField.innerText;
+
+  const shareButton = document.createElement("button");
+  shareButton.classList.add("btn", "share-btn");
+  shareButton.setAttribute("data-file-id", file._id);
+
+  if (file.isShared) {
+    shareButton.classList.add("btn-warning");
+    shareButton.innerText = "Remove Share";
+  } else {
+    shareButton.classList.add("btn-primary");
+    shareButton.innerText = "Share";
   }
+
+  shareButton.addEventListener("click", () => {
+    const isShared = shareButton.innerText === "Remove Share";
+    const spinner = displaySpinner(shareButton);
+
+    if (isShared) {
+      fetch(`/removeShare/${file._id}`, {
+        method: "DELETE",
+      })
+        .then((response) => {
+          if (response.ok) {
+            shareButton.removeChild(spinner);
+
+            shareButton.innerText = "Share";
+            shareButton.classList.toggle("btn-primary");
+            shareButton.classList.toggle("btn-warning");
+
+            nameField.innerHTML = fileName;
+          } else {
+            throw new Error("Error removing share");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while removing the share");
+        });
+    } else {
+      fetch(`/share/${file._id}`, {
+        method: "POST",
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Error sharing file");
+          }
+        })
+        .then((data) => {
+          shareButton.removeChild(spinner);
+
+          shareButton.innerText = "Remove Share";
+          shareButton.classList.toggle("btn-primary");
+          shareButton.classList.toggle("btn-warning");
+
+          nameField.innerHTML = "";
+
+          createNameWithLink(nameField, data.shareableLink, fileName);
+
+          createCopyLinkField(data.shareableLink, shareLink);
+
+          modal.show();
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while sharing the file");
+        });
+    }
+  });
+
+  parent.appendChild(shareButton);
+}
+
+function displayData(data) {
+  const { files } = data;
+
+  const tableParent = document.querySelector("#tableParent");
+
+  let table;
+
+  if (tableParent.querySelector("table")) {
+    table = tableParent.querySelector("table");
+    table.querySelector("tbody").remove();
+  } else {
+    table = document.createElement("table");
+    table.classList.add("table", "table-striped");
+    table.id = "data-table";
+  }
+
+  if (files.length === 0) {
+    const tbody = document.createElement("tbody");
+
+    displayNoFiles(tbody);
+
+    table.appendChild(tbody);
+  }
+
+  if (files.length > 0) {
+    if (!isHeaderDisplayed) displayTableHeder(table);
+
+    const tbody = document.createElement("tbody");
+    files.forEach((file, index) => {
+      const dataTr = document.createElement("tr");
+
+      const indexTh = document.createElement("th");
+      indexTh.scope = "row";
+      indexTh.innerText = index;
+
+      dataTr.appendChild(indexTh);
+
+      const rowElements = [file.name, file.size, file.type, file.viewCount, null];
+
+      rowElements.forEach((element) => {
+        const td = document.createElement("td");
+
+        if (element === file.name) {
+          if (file.shareableLink) {
+            createNameWithLink(td, file.shareableLink, element);
+          } else {
+            td.innerText = element;
+          }
+        } else if (element === null) {
+          createRemoveButton(td, file);
+
+          createShareButton(td, file, dataTr.childNodes[1]);
+        } else {
+          td.innerText = element;
+        }
+        dataTr.appendChild(td);
+      });
+      tbody.appendChild(dataTr);
+    });
+
+    table.appendChild(tbody);
+    tableParent.appendChild(table);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  getData(queryParams).then((data) => displayData(data));
 
   // Search functionality
   document.getElementById("searchInput").addEventListener("input", function () {
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const queryParams = Object.fromEntries(urlSearchParams.entries());
-
     queryParams.search = this.value.toUpperCase();
 
-    window.location.href = `${window.location.origin}/search?${new URLSearchParams(queryParams).toString()}`;
+    getUpdatedData();
   });
 });
