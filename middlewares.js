@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const session = require("express-session");
+const morgan = require("morgan");
 
 require("dotenv").config();
 
@@ -13,6 +14,8 @@ const app = express();
 app.set("view engine", "ejs"); // Set the view engine to EJS
 
 app.use(express.static("public"));
+
+app.use(morgan("tiny"));
 
 // Use express-session middleware
 app.use(

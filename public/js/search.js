@@ -1,6 +1,5 @@
 const urlSearchParams = new URLSearchParams(window.location.search);
 const queryParams = Object.fromEntries(urlSearchParams.entries());
-let isHeaderDisplayed = false;
 
 async function getData(queryParams) {
   return fetch(`/search/get?${new URLSearchParams(queryParams).toString()}`, {
@@ -43,7 +42,7 @@ function updateArrowIndicator(button, isAscending) {
 
 function getUpdatedData() {
   let nextURL;
-  if (queryParams.length === 0) {
+  if (queryParams) {
     nextURL = `${window.location.origin}/search`;
   } else {
     nextURL = `${window.location.origin}/search?${new URLSearchParams(queryParams).toString()}`;
@@ -159,7 +158,7 @@ function createRemoveButton(parent, file) {
         .then((response) => {
           if (response.ok) {
             removeButton.removeChild(spinner);
-            
+
             removeButton.parentElement.parentElement.remove();
           } else {
             throw new Error("Error deleting file");
@@ -285,21 +284,30 @@ function createShareButton(parent, file, nameField) {
   parent.appendChild(shareButton);
 }
 
+const loader = document.querySelector(".skeleton-loader");
+
+function hideLoader() {
+  loader.classList.add("hide");
+  loader.classList.remove("show");
+}
+
+function showLoader() {
+  loader.classList.add("show");
+  loader.classList.remove("hide");
+}
+
 function displayData(data) {
   const { files } = data;
 
+  showLoader();
+
   const tableParent = document.querySelector("#tableParent");
 
-  let table;
+  if (tableParent.querySelector("table")) tableParent.querySelector("table").remove();
 
-  if (tableParent.querySelector("table")) {
-    table = tableParent.querySelector("table");
-    table.querySelector("tbody").remove();
-  } else {
-    table = document.createElement("table");
-    table.classList.add("table", "table-striped");
-    table.id = "data-table";
-  }
+  const table = document.createElement("table");
+  table.classList.add("table", "table-striped");
+  table.id = "data-table";
 
   if (files.length === 0) {
     const tbody = document.createElement("tbody");
@@ -308,10 +316,10 @@ function displayData(data) {
 
     table.appendChild(tbody);
     tableParent.appendChild(table);
-  }
 
-  if (files.length > 0) {
-    if (!isHeaderDisplayed) displayTableHeder(table);
+    hideLoader();
+  } else {
+    displayTableHeder(table);
 
     const tbody = document.createElement("tbody");
     files.forEach((file, index) => {
@@ -348,6 +356,8 @@ function displayData(data) {
 
     table.appendChild(tbody);
     tableParent.appendChild(table);
+
+    hideLoader();
   }
 }
 

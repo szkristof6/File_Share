@@ -14,13 +14,7 @@ function isEmpty(obj) {
 }
 
 function searchByName(list, filter) {
-  return list.filter((row) => {
-    if (row.name.toUpperCase().indexOf(filter) > -1) {
-      return true;
-    }
-
-    return false;
-  });
+  return list.filter((row) => row.name.toUpperCase().indexOf(filter) > -1);
 }
 
 module.exports = async (req, res) => {
