@@ -17,6 +17,23 @@ app.use(express.static("public"));
 
 app.use(morgan("tiny"));
 
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  })
+);
+
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: __dirname + "/tmp/",
+  })
+);
+
+// Disable X-Powered-By header
+app.disable("x-powered-by");
+
 // Use express-session middleware
 app.use(
   session({
@@ -38,20 +55,6 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
-
-app.use(
-  cors({
-    origin: "*",
-    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-  })
-);
-
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: __dirname + "/tmp/",
-  })
-);
 
 app.use(express.json());
 
