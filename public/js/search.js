@@ -14,8 +14,6 @@ function showLoader() {
 }
 
 async function getData(queryParams) {
-  showLoader();
-
   return fetch(`/search/get?${new URLSearchParams(queryParams).toString()}`, {
     method: "GET",
   })
@@ -295,6 +293,8 @@ function createShareButton(parent, file, nameField) {
 
 function displayData(data) {
   const { files } = data;
+
+  showLoader();
 
   const tableParent = document.querySelector("#tableParent");
 
