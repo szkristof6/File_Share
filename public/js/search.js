@@ -1,7 +1,21 @@
 const urlSearchParams = new URLSearchParams(window.location.search);
 const queryParams = Object.fromEntries(urlSearchParams.entries());
 
+const loader = document.querySelector(".skeleton-loader");
+
+function hideLoader() {
+  loader.classList.remove("show");
+}
+
+function showLoader() {
+  if (tableParent.querySelector("table")) tableParent.querySelector("table").remove();
+
+  loader.classList.add("show");
+}
+
 async function getData(queryParams) {
+  showLoader();
+
   return fetch(`/search/get?${new URLSearchParams(queryParams).toString()}`, {
     method: "GET",
   })
@@ -41,12 +55,7 @@ function updateArrowIndicator(button, isAscending) {
 }
 
 function getUpdatedData() {
-  let nextURL;
-  if (queryParams) {
-    nextURL = `${window.location.origin}/search`;
-  } else {
-    nextURL = `${window.location.origin}/search?${new URLSearchParams(queryParams).toString()}`;
-  }
+  const nextURL = `${window.location.origin}/search?${new URLSearchParams(queryParams).toString()}`;
   window.history.pushState({}, null, nextURL);
 
   getData(queryParams).then((data) => displayData(data));
@@ -284,22 +293,8 @@ function createShareButton(parent, file, nameField) {
   parent.appendChild(shareButton);
 }
 
-const loader = document.querySelector(".skeleton-loader");
-
-function hideLoader() {
-  loader.classList.add("hide");
-  loader.classList.remove("show");
-}
-
-function showLoader() {
-  loader.classList.add("show");
-  loader.classList.remove("hide");
-}
-
 function displayData(data) {
   const { files } = data;
-
-  showLoader();
 
   const tableParent = document.querySelector("#tableParent");
 
