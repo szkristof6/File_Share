@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
   for (let fileKey in uploadedFiles) {
     const uploadedFile = uploadedFiles[fileKey];
 
-    if (!uploadedFile.name.match(/\.(mp4|mov|avi)$/)) {
+    if (!uploadedFile.name.match(/\.(mp4)$/)) {
       return res.status(400).json({ error: "Please upload a valid video file." });
     }
     
@@ -41,12 +41,12 @@ module.exports = async (req, res) => {
     }
 
     // Use the mv() method to place the file somewhere on your server
-    uploadedFile.mv(`${outputDir}/original`, function (err) {
+    uploadedFile.mv(`${outputDir}/original.mp4`, function (err) {
       if (err) return res.status(500).send(err);
     });
 
     // FFmpeg command for HLS conversion
-    const ffmpegCommand = `ffmpeg -i ${outputDir}/original -c:v copy -c:a copy -hls_time 10 -hls_list_size 0 -hls_segment_filename ${outputDir}/segments/segment_%03d.ts ${outputDir}/video.m3u8`;
+    const ffmpegCommand = `ffmpeg -i ${outputDir}/original.mp4 -c:v copy -c:a copy -hls_time 10 -hls_list_size 0 -hls_segment_filename ${outputDir}/segments/segment_%03d.ts ${outputDir}/video.m3u8`;
 
     exec(ffmpegCommand, (error, stdout, stderr) => {
       if (error) {
