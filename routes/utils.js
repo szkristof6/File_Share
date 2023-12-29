@@ -1,5 +1,9 @@
 const checkDiskSpace = require("check-disk-space").default;
+const { v4: uuidv4 } = require("uuid");
+
 require("dotenv").config();
+
+const geenrateUniqueId = () => `${uuidv4()}-${Date.now()}`;
 
 function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return "0 Bytes";
@@ -72,6 +76,7 @@ function sortByViews(list, dir) {
 }
 
 module.exports = {
+  geenrateUniqueId,
   formatBytes,
   getStorageSpace,
   sortByName,

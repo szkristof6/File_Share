@@ -4,9 +4,6 @@ const mongoose = require("mongoose");
 const fileSchema = new mongoose.Schema({
   name: String,
   size: Number,
-  mimeType: String,
-  md5: String,
-  path: String,
   owner: String,
 });
 

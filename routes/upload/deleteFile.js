@@ -5,11 +5,8 @@ const ShareKey = require("../../models/ShareKey");
 module.exports = async (req, res) => {
   const fileId = req.params.id;
 
-  // Find the file by its _id and remove it from the database
-  const file = await File.findById(fileId);
-
   // Remove the file from the 'uploads' directory
-  fs.unlink(file.path, (err) => {
+  fs.rm(`${process.env.STORAGE_LOCATION}/${fileId}`, { recursive: true, force: true }, (err) => {
     if (err) {
       return res.status(500).json({
         status: "error",

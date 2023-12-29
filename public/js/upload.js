@@ -58,7 +58,7 @@ const updateRemainingTime = (progress) => {
 
 Dropzone.options.uploadZone = {
   paramName: "uploadedFile",
-  acceptedFiles: "image/*, video/*, audio/*",
+  acceptedFiles: "video/*",
   maxFilesize: null,
 
   init: function () {

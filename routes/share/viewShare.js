@@ -28,11 +28,5 @@ module.exports = async (req, res) => {
 
   await ShareKey.updateOne({ key: shareableLink }, { views: updatedViews });
 
-  if (file.mimeType.startsWith("audio")) {
-    // Render audio template
-    res.render("audio", { shareableLink, name: file.name });
-  } else if (file.mimeType.startsWith("video")) {
-    // Render video template
-    res.render("video", { shareableLink, mimeType: file.mimeType });
-  }
+  res.render("video", { shareableLink });
 };

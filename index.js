@@ -7,7 +7,6 @@ require("./mongodb"); // Connect to MongoDB
 // Endpoint to display files using EJS
 app.get("/", (req, res) => (!req.isAuthenticated() ? res.redirect("/auth/google") : res.redirect("/search")));
 
-
 app.get("/search", require("./routes/render/search"));
 app.get("/search/get", require("./routes/search/getFiles"));
 
@@ -24,6 +23,8 @@ app.get("/:shareableLink", require("./routes/share/viewShare"));
 
 // Route to get a file using shareable link
 app.get("/get/:shareableLink", require("./routes/share/getShare"));
+
+app.get("/get/:shareableLink/:segmentId", require("./routes/share/getShareSegment"));
 
 // Route to upload a file
 app.post("/upload", require("./routes/upload/uploadFile"));

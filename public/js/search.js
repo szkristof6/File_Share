@@ -64,7 +64,6 @@ function displayTableHeder(parent) {
     { name: "#", sortable: false },
     { name: "Name", sortable: true },
     { name: "Size", sortable: true },
-    { name: "Type", sortable: true },
     { name: "Views", sortable: true },
     { name: "Actions", sortable: false },
   ];
@@ -326,7 +325,7 @@ function displayData(data) {
 
       dataTr.appendChild(indexTh);
 
-      const rowElements = [file.name, file.size, file.type, file.viewCount, null];
+      const rowElements = [file.name, file.size, file.viewCount, null];
 
       rowElements.forEach((element) => {
         const td = document.createElement("td");
