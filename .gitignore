@@ -1,5 +1,7 @@
 uploads/
 
+x264_lookahead.clbin
+
 # Logs
 logs
 *.log
