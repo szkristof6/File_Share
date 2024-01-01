@@ -10,7 +10,7 @@ let conversionsCompleted = 0;
 function createMasterPlaylist(outputDir, res) {
   const masterM3U8Content = `#EXTM3U
 #EXT-X-VERSION:3
-${conversionList.map((conversion) => `#EXT-X-STREAM-INF:BANDWIDTH=${conversion.bitrate},RESOLUTION=${conversion.width}x${conversion.height}\n${conversion.height}`).join("\n")}\n`;
+${conversionList.map((conversion) => `#EXT-X-STREAM-INF:BANDWIDTH=${conversion.bitrate * 1000},RESOLUTION=${conversion.width}x${conversion.height}\n${conversion.height}`).join("\n")}\n`;
 
   fs.writeFile(`${outputDir}/master.m3u8`, masterM3U8Content, (err) => {
     if (err) {

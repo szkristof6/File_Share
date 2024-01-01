@@ -89,8 +89,6 @@ Dropzone.options.uploadZone = {
 
       uploadSpeedContainer.innerText = updateUploadSpeed((fileSize * progress) / 100, new Date().getTime() - startTime);
       remainingTimeContainer.innerText = updateRemainingTime(progress);
-
-      //document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
     });
 
     this.on("sending", function (file) {
