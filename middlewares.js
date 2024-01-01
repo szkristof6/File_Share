@@ -10,6 +10,8 @@ const passport = require("./auth");
 
 const app = express();
 
+app.use(express.json());
+
 // Static Middleware
 app.set("view engine", "ejs"); // Set the view engine to EJS
 
@@ -19,7 +21,7 @@ app.use(morgan("tiny"));
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.ORIGIN,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   })
 );

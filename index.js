@@ -24,10 +24,14 @@ app.get("/:shareableLink", require("./routes/share/viewShare"));
 // Route to get a file using shareable link
 app.get("/get/:shareableLink", require("./routes/share/getShare"));
 
-app.get("/get/:shareableLink/:segmentId", require("./routes/share/getShareSegment"));
+app.get("/get/:shareableLink/:resolution", require("./routes/share/getShareResolution"));
+
+app.get("/get/:shareableLink/:resolution/:segmentId", require("./routes/share/getShareSegment"));
 
 // Route to upload a file
 app.post("/upload", require("./routes/upload/uploadFile"));
+
+app.get("/convert/:id", require("./routes/upload/convertFile"));
 
 // Route for file removal
 app.post("/delete/:id", require("./routes/upload/deleteFile"));

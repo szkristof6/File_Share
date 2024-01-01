@@ -5,6 +5,41 @@ require("dotenv").config();
 
 const geenrateUniqueId = () => `${uuidv4()}-${Date.now()}`;
 
+const conversionList = [
+  /*
+  {
+    width: 256,
+    height: 144,
+    bitrate: 200,
+  },
+  {
+    width: 426,
+    height: 240,
+    bitrate: 500,
+  },
+  */
+  {
+    width: 640,
+    height: 360,
+    bitrate: 700,
+  },
+  {
+    width: 854,
+    height: 480,
+    bitrate: 1250,
+  },
+  {
+    width: 1280,
+    height: 720,
+    bitrate: 2500,
+  },
+  {
+    width: 1920,
+    height: 1080,
+    bitrate: 5500,
+  },
+];
+
 function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return "0 Bytes";
   const k = 1000;
@@ -76,6 +111,7 @@ function sortByViews(list, dir) {
 }
 
 module.exports = {
+  conversionList,
   geenrateUniqueId,
   formatBytes,
   getStorageSpace,

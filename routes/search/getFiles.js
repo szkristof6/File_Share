@@ -1,7 +1,7 @@
 const File = require("../../models/File");
 const ShareKey = require("../../models/ShareKey");
 
-const { formatBytes, getStorageSpace, sortByName, sortByViews, sortBySize, sortByType } = require("../utils");
+const { formatBytes, sortByName, sortByViews, sortBySize, sortByType } = require("../utils");
 
 function isEmpty(obj) {
   for (const prop in obj) {

@@ -3,6 +3,10 @@ const File = require("../../models/File");
 const ShareKey = require("../../models/ShareKey");
 
 module.exports = async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send({ status: "error", message: "Not logged in!" });
+  }
+  
   const fileId = req.params.id;
 
   // Remove the file from the 'uploads' directory

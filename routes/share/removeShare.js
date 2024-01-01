@@ -2,6 +2,10 @@ const ShareKey = require("../../models/ShareKey");
 
 module.exports = async (req, res) => {
   try {
+    if (!req.isAuthenticated()) {
+      return res.status(401).send({ status: "error", message: "Not logged in!" });
+    }
+
     const fileId = req.params.id;
 
     // Find and delete the associated share link

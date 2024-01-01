@@ -15,6 +15,44 @@
       body {
         padding-top: 56px; /* Adjust this value based on your navbar height */
       }
+      .custom-box {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin: 10px;
+        padding: 15px;
+        width: 300px;
+        display: inline-block;
+      }
+
+      .stage-checkbox {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 18px;
+        margin-right: 5px;
+      }
+
+      .stage-done {
+        background-color: #27ae60;
+        color: #fff;
+      }
+
+      .stage-error {
+        background-color: #ae2727;
+        color: #fff;
+      }
+
+      .progress {
+        width: 100%;
+        margin: 0 5px;
+      }
+
+      .conversionContainer {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -26,8 +64,33 @@
       <h1>File Upload</h1>
 
       <form action="/upload" class="dropzone" id="uploadZone"></form>
-      <div id="uploadSpeed"></div>
-      <div id="remainingTime"></div>
+
+      <div class="row" id="previews">
+        <div class="col" id="template">
+          <div class="custom-box">
+            <div class="float-right"><a href="#" data-dz-remove>x</a></div>
+            <h4 id="name" data-dz-name></h4>
+            <p>Status: <span id="status">Uploading..</span></p>
+            <div class="conversionContainer">
+              <% resolutions.forEach(resolution => { %>
+              <div class="d-flex align-items-center mb-2">
+                <div class="stage-checkbox" id="<%= resolution %>">?</div>
+                <span><%= resolution %></span>
+                <div class="progress">
+                  <div class="progress-bar bg-info" id="convert_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+              <% }); %>
+            </div>
+            <p>Size: <span data-dz-size id="fileSize"></span></p>
+            <p>Upload Speed: <span id="uploadSpeed"></span></p>
+            <p>Remaining Time: <span id="remainingTime"></span></p>
+            <div class="progress" id="total-progress">
+              <div class="progress-bar bg-info" data-dz-uploadprogress role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Include Dropzone.js library -->
@@ -36,7 +99,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
     <script src="/js/upload.js"></script>
   </body>
 </html>

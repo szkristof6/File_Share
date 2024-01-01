@@ -166,6 +166,15 @@ function createRemoveButton(parent, file) {
             removeButton.removeChild(spinner);
 
             removeButton.parentElement.parentElement.remove();
+
+            const elements = document.querySelectorAll("delete-btn");
+            if(elements.length === 0){
+              document.querySelector("thead").remove();
+              const parent = document.querySelector("tbody");
+              displayNoFiles(parent);
+            }
+
+
           } else {
             throw new Error("Error deleting file");
           }
