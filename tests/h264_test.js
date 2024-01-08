@@ -18,24 +18,21 @@ const details = [
   "placebo",
 ];
 
-async function main() {
-  for (const detail of details) {
+function main() {
+  details.forEach((detail) => {
     const startTime = performance.now();
     console.log(`Started converting ${detail}`);
 
-    try {
-      convertVideo(detail).then(() => {
+    convertVideo(detail)
+      .then(() => {
         const endTime = performance.now();
-  
+
         console.log(
           `H264 - ${detail} conversion took ${endTime - startTime} milliseconds`
         );
-      });
-
-    } catch (error) {
-      console.error(error);
-    }
-  }
+      })
+      .catch((error) => console.log(error));
+  });
 }
 
 module.exports = main;
@@ -47,14 +44,14 @@ function convertVideo(detail) {
       .size(`?x1080`)
       .videoBitrate(5000)
       .outputOptions([`-preset ${detail}`, "-x264opts opencl"])
-      .on('error', function(err, stdout, stderr) {
+      .on("error", function (err, stdout, stderr) {
         if (err) {
-            console.log(err.message);
-            console.log("stdout:\n" + stdout);
-            console.log("stderr:\n" + stderr);
-            reject("Error");
+          console.log(err.message);
+          console.log("stdout:\n" + stdout);
+          console.log("stderr:\n" + stderr);
+          reject("Error");
         }
-    })
+      })
       .on("end", function () {
         resolve();
       })

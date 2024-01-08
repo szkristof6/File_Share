@@ -18,24 +18,20 @@ const details = [
   "placebo",
 ];
 
-async function main() {
-  for (const detail of details) {
+function main() {
+  details.forEach((detail) => {
     const startTime = performance.now();
-    console.log(`Started converting H265 - ${detail}`);
+    console.log(`Started converting ${detail}`);
 
-    try {
-      convertVideo(detail).then(() => {
-        const endTime = performance.now();
-  
-        console.log(
-          `H265 - ${detail} conversion took ${endTime - startTime} milliseconds`
-        );
-      });
-      
-    } catch (error) {
-      console.error(error);
-    }
-  }
+    convertVideo(detail).then(() => {
+      const endTime = performance.now();
+
+      console.log(
+        `H265 - ${detail} conversion took ${endTime - startTime} milliseconds`
+      );
+    })
+    .catch((error) => console.log(error));
+  });
 }
 
 module.exports = main;
