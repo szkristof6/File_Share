@@ -65,14 +65,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // Initialize here
-      const player = new Plyr(video, defaultOptions);
+      new Plyr(video, defaultOptions);
     });
 
     hls.attachMedia(video);
     window.hls = hls;
+  } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = source;
   } else {
     // default options with no quality update in case Hls is not supported
-    const player = new Plyr(video, defaultOptions);
+    new Plyr(video, defaultOptions);
   }
 
   function updateQuality(newQuality) {
