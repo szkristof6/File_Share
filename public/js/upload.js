@@ -133,6 +133,8 @@ Dropzone.options.uploadZone = {
             console.error(data.message);
             element.querySelector("#status").innerText = "Error..";
           } else if (data.status === "success") {
+            element.querySelector(".progress-bar").parentNode.remove();
+
             element.querySelector("#status").innerText = "Done";
           }
         });
