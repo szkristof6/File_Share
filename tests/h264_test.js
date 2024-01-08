@@ -47,10 +47,14 @@ function convertVideo(detail) {
       .size(`?x1080`)
       .videoBitrate(5000)
       .outputOptions([`-preset ${detail}`, "-x264opts opencl"])
-      .on("error", function (error) {
-        console.log(error);
-        reject(error);
-      })
+      .on('error', function(err, stdout, stderr) {
+        if (err) {
+            console.log(err.message);
+            console.log("stdout:\n" + stdout);
+            console.log("stderr:\n" + stderr);
+            reject("Error");
+        }
+    })
       .on("end", function () {
         resolve();
       })
