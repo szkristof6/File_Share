@@ -6,37 +6,53 @@ require("dotenv").config();
 const geenrateUniqueId = () => `${uuidv4()}-${Date.now()}`;
 
 const conversionList = [
-  /*
   {
     width: 256,
     height: 144,
-    bitrate: 200,
+    bitrate: 300,
+    preset: "ultrafast",
   },
   {
     width: 426,
     height: 240,
-    bitrate: 500,
+    bitrate: 700,
+    preset: "superfast",
   },
-  */
   {
     width: 640,
     height: 360,
-    bitrate: 700,
+    bitrate: 1000,
+    preset: "veryfast",
   },
   {
     width: 854,
     height: 480,
-    bitrate: 1250,
+    bitrate: 2000,
+    preset: "faster",
   },
   {
     width: 1280,
     height: 720,
-    bitrate: 2500,
+    bitrate: 4000,
+    preset: "medium",
   },
   {
     width: 1920,
     height: 1080,
-    bitrate: 5500,
+    bitrate: 8000,
+    preset: "slow",
+  },
+  {
+    width: 2560,
+    height: 1440,
+    bitrate: 10000,
+    preset: "slow",
+  },
+  {
+    width: 3840,
+    height: 2160,
+    bitrate: 12000,
+    preset: "slower",
   },
 ];
 

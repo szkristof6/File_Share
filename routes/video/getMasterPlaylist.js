@@ -1,32 +1,23 @@
 const fs = require("fs");
-const ShareKey = require("../../models/ShareKey");
+const File = require("../../models/File");
 
 const path = require("path");
 
-const { conversionList } = require("../utils");
-
 module.exports = async (req, res) => {
   try {
-    const { shareableLink, resolution } = req.params;
-
-    if (!conversionList.some((e) => e.height === Number(resolution))) {
-      return res.status(404).json({
-        status: "error",
-        message: "Invalid resolution",
-      });
-    }
+    const link = req.params.link;
 
     // Find the ShareKey by the shareable link
-    const shareKey = await ShareKey.findOne({ key: shareableLink });
+    const file = await File.findById(link);
 
-    if (!shareKey) {
+    if (!file) {
       return res.status(404).json({
         status: "error",
         message: "File not found",
       });
     }
 
-    const masterPlaylist = path.join(`${process.env.STORAGE_LOCATION}/${shareKey.file.toString()}`, `${resolution}p.m3u8`);
+    const masterPlaylist = path.join(`${process.env.STORAGE_LOCATION}/${link.toString()}`, "master.m3u8");
 
     if (fs.existsSync(masterPlaylist)) {
       // Send the master playlist (m3u8)

@@ -54,7 +54,6 @@ const updateRemainingTime = (progress) => {
   const uploaded = (fileSize * progress) / 100;
   const remainingSize = fileSize - uploaded;
   const elapsedTime = (currentTime - startTime) / 1000;
-  const remainingTime = (elapsedTime / progress) * (1 - progress) || 0;
   const uploadSpeed = uploaded / elapsedTime;
 
   const remainingTimeSeconds = remainingSize / uploadSpeed;
@@ -76,6 +75,10 @@ Dropzone.options.uploadZone = {
 
   init: function () {
     this.on("sending", function (file, xhr, formData) {
+      const element = file.previewElement;
+
+      element.style.display = "block";
+
       startTime = new Date().getTime();
       fileSize = file.size;
       elapsedTime = 0;
@@ -103,8 +106,6 @@ Dropzone.options.uploadZone = {
     });
 
     this.on("error", function (file) {
-      console.log("canceled");
-
       const element = file.previewElement;
 
       element.querySelector("#status").innerText = "Error..";
@@ -119,65 +120,21 @@ Dropzone.options.uploadZone = {
       element.querySelector("#uploadSpeed").parentNode.style.display = "none";
       element.querySelector("#remainingTime").parentNode.style.display = "none";
 
-      const conversionContainer = element.querySelector(".conversionContainer");
-      conversionContainer.style.display = "block";
-
-      const checkBoxes = conversionContainer.querySelectorAll(".stage-checkbox");
-
-      element.querySelector("#total-progress").style.display = "none";
+      element.querySelector(".progress-bar").classList.add("bg-warning");
 
       const response = JSON.parse(file.xhr.response);
 
-      fetch(`/convert/${response.id}`)
-        .then((response) => {
-          const reader = response.body.getReader();
-
-          const processStream = ({ done, value }) => {
-            if (done) {
-              console.log("Done");
-
-              element.querySelector("#status").innerText = "Done";
-              return;
-            }
-
-            const decoder = new TextDecoder();
-            const chunk = decoder.decode(value, { stream: true });
-
-            try {
-              const data = JSON.parse(chunk);
-
-              if (data) {
-                const { format, status } = data;
-
-                checkBoxes.forEach((box) => {
-                  if (box.id === format) {
-                    if (data.status === "finish") {
-                      box.classList.add("stage-done");
-                      box.innerText = "✓";
-                      box.parentNode.querySelector("#convert_progress").parentNode.style.display = "none";
-                    } else if (box.status === "error") {
-                      box.classList.add("stage-error");
-                      box.innerText = "x";
-                      box.parentNode.querySelector("#convert_progress").parentNode.style.display = "none";
-                    } else {
-                      box.parentNode.querySelector("#convert_progress").style.width = `${status}%`;
-                    }
-                  }
-                });
-              }
-              console.log(data);
-            } catch (error) {
-              console.log(error);
-            }
-
-            reader.read().then(processStream);
-          };
-
-          reader.read().then(processStream);
-        })
-        .catch((error) => {
-          console.log(chunk);
-          console.error("Error fetching count:", error);
+      fetch(`/convert/${response.id}`, {
+        method: "POST",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "error") {
+            console.error(data.message);
+            element.querySelector("#status").innerText = "Error..";
+          } else if (data.status === "success") {
+            element.querySelector("#status").innerText = "Done";
+          }
         });
     });
 

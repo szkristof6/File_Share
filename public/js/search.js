@@ -61,7 +61,6 @@ function getUpdatedData() {
 
 function displayTableHeder(parent) {
   const columnNames = [
-    { name: "#", sortable: false },
     { name: "Name", sortable: true },
     { name: "Size", sortable: true },
     { name: "Views", sortable: true },
@@ -167,13 +166,12 @@ function createRemoveButton(parent, file) {
 
             removeButton.parentElement.parentElement.remove();
 
-            const elements = document.querySelectorAll("delete-btn");
-            if(elements.length === 0){
+            const elements = document.querySelectorAll("tr");
+            if(elements.length - 1 === 0){
               document.querySelector("thead").remove();
               const parent = document.querySelector("tbody");
               displayNoFiles(parent);
             }
-
 
           } else {
             throw new Error("Error deleting file");
@@ -222,83 +220,6 @@ function createNameWithLink(parent, url, name) {
   parent.appendChild(shareLink);
 }
 
-function createShareButton(parent, file, nameField) {
-  const modal = new bootstrap.Modal(document.getElementById("shareFileModal"));
-  const fileName = nameField.innerText;
-
-  const shareButton = document.createElement("button");
-  shareButton.classList.add("btn", "share-btn");
-  shareButton.setAttribute("data-file-id", file._id);
-
-  if (file.isShared) {
-    shareButton.classList.add("btn-warning");
-    shareButton.innerText = "Remove Share";
-  } else {
-    shareButton.classList.add("btn-primary");
-    shareButton.innerText = "Share";
-  }
-
-  shareButton.addEventListener("click", () => {
-    const isShared = shareButton.innerText === "Remove Share";
-    const spinner = displaySpinner(shareButton);
-
-    if (isShared) {
-      fetch(`/removeShare/${file._id}`, {
-        method: "DELETE",
-      })
-        .then((response) => {
-          if (response.ok) {
-            shareButton.removeChild(spinner);
-
-            shareButton.innerText = "Share";
-            shareButton.classList.toggle("btn-primary");
-            shareButton.classList.toggle("btn-warning");
-
-            nameField.innerHTML = fileName;
-          } else {
-            throw new Error("Error removing share");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("An error occurred while removing the share");
-        });
-    } else {
-      fetch(`/share/${file._id}`, {
-        method: "POST",
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error("Error sharing file");
-          }
-        })
-        .then((data) => {
-          shareButton.removeChild(spinner);
-
-          shareButton.innerText = "Remove Share";
-          shareButton.classList.toggle("btn-primary");
-          shareButton.classList.toggle("btn-warning");
-
-          nameField.innerHTML = "";
-
-          createNameWithLink(nameField, data.shareableLink, fileName);
-
-          createCopyLinkField(data.shareableLink, shareLink);
-
-          modal.show();
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("An error occurred while sharing the file");
-        });
-    }
-  });
-
-  parent.appendChild(shareButton);
-}
-
 function displayData(data) {
   const { files } = data;
 
@@ -325,30 +246,26 @@ function displayData(data) {
     displayTableHeder(table);
 
     const tbody = document.createElement("tbody");
-    files.forEach((file, index) => {
+    files.forEach((file) => {
       const dataTr = document.createElement("tr");
 
-      const indexTh = document.createElement("th");
-      indexTh.scope = "row";
-      indexTh.innerText = index;
-
-      dataTr.appendChild(indexTh);
-
-      const rowElements = [file.name, file.size, file.viewCount, null];
+      const rowElements = [file.name, file.size, file.views, null];
 
       rowElements.forEach((element) => {
         const td = document.createElement("td");
 
         if (element === file.name) {
-          if (file.shareableLink) {
-            createNameWithLink(td, file.shareableLink, element);
+          if (file.converted) {
+            createNameWithLink(td, file._id, element);
           } else {
             td.innerText = element;
           }
         } else if (element === null) {
-          createRemoveButton(td, file);
-
-          createShareButton(td, file, dataTr.childNodes[1]);
+          if (file.converted) {
+            createRemoveButton(td, file);
+          } else {
+            td.innerText = "Converting..";
+          }
         } else {
           td.innerText = element;
         }

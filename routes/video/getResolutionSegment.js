@@ -1,14 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 
-const ShareKey = require("../../models/ShareKey");
+const File = require("../../models/File");
 
 require("dotenv").config();
 
 const { conversionList } = require("../utils");
 
 module.exports = async (req, res) => {
-  const { shareableLink, resolution } = req.params;
+  const { link, resolution } = req.params;
 
   if (!conversionList.some((e) => e.height === Number(resolution))) {
     return res.status(404).json({
@@ -18,9 +18,9 @@ module.exports = async (req, res) => {
   }
 
   // Find the ShareKey by the shareable link
-  const shareKey = await ShareKey.findOne({ key: shareableLink });
+  const file = await File.findById(link);
 
-  if (!shareKey) {
+  if (!file) {
     return res.status(404).json({
       status: "error",
       message: "File not found",
@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
   }
 
   const segmentId = req.params.segmentId;
-  const segmentPath = path.join(process.env.STORAGE_LOCATION, shareKey.file.toString(), `${resolution}p_segments`, `${resolution}_segment_${segmentId}.ts`);
+  const segmentPath = path.join(process.env.STORAGE_LOCATION, link, `${resolution}p_segments`, `${resolution}_segment_${segmentId}.ts`);
 
   if (fs.existsSync(segmentPath)) {
     // Send the segment file

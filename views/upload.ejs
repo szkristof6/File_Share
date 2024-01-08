@@ -24,33 +24,12 @@
         display: inline-block;
       }
 
-      .stage-checkbox {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 1px solid #ccc;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 18px;
-        margin-right: 5px;
-      }
-
-      .stage-done {
-        background-color: #27ae60;
-        color: #fff;
-      }
-
-      .stage-error {
-        background-color: #ae2727;
-        color: #fff;
-      }
-
       .progress {
         width: 100%;
         margin: 0 5px;
       }
 
-      .conversionContainer {
+      #template{
         display: none;
       }
     </style>
@@ -71,22 +50,18 @@
             <div class="float-right"><a href="#" data-dz-remove>x</a></div>
             <h4 id="name" data-dz-name></h4>
             <p>Status: <span id="status">Uploading..</span></p>
-            <div class="conversionContainer">
-              <% resolutions.forEach(resolution => { %>
-              <div class="d-flex align-items-center mb-2">
-                <div class="stage-checkbox" id="<%= resolution %>">?</div>
-                <span><%= resolution %></span>
-                <div class="progress">
-                  <div class="progress-bar bg-info" id="convert_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-              <% }); %>
-            </div>
             <p>Size: <span data-dz-size id="fileSize"></span></p>
             <p>Upload Speed: <span id="uploadSpeed"></span></p>
             <p>Remaining Time: <span id="remainingTime"></span></p>
             <div class="progress" id="total-progress">
-              <div class="progress-bar bg-info" data-dz-uploadprogress role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+              <div
+                class="progress-bar bg-info progress-bar-striped progress-bar-animated"
+                data-dz-uploadprogress
+                role="progressbar"
+                aria-valuenow="0"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              ></div>
             </div>
           </div>
         </div>

@@ -3,80 +3,97 @@ const fs = require("fs");
 
 require("dotenv").config();
 
+const File = require("../../models/File");
 const { conversionList } = require("../utils");
 
-let conversionsCompleted = 0;
+function getVideoData(file) {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(file, (error, metadata) => {
+      if (error) {
+        console.error("Error while probing:", error);
+        reject(error);
+      }
 
-function createMasterPlaylist(outputDir, res) {
-  const masterM3U8Content = `#EXTM3U
-#EXT-X-VERSION:3
-${conversionList.map((conversion) => `#EXT-X-STREAM-INF:BANDWIDTH=${conversion.bitrate * 1000},RESOLUTION=${conversion.width}x${conversion.height}\n${conversion.height}`).join("\n")}\n`;
+      resolve({
+        fileResolution: metadata.streams[0].coded_width ? metadata.streams[0].height : metadata.streams[1].height,
+        fileBitrate: metadata.format.bit_rate,
+      });
+    });
+  });
+}
 
-  fs.writeFile(`${outputDir}/master.m3u8`, masterM3U8Content, (err) => {
-    if (err) {
-      console.error("Error writing master M3U8 file:", err);
-      res.end(
-        JSON.stringify({
-          status: "error",
-          message: "Error creating master playlist",
-        })
-      );
-    } else {
-      console.log("Master M3U8 file created successfully");
-      res.end(
-        JSON.stringify({
-          status: "success",
-        })
-      );
+function createMasterPlaylist(fileId, outputDir) {
+  return new Promise((resolve, reject) => {
+    const masterPlaylist = `#EXTM3U
+  #EXT-X-VERSION:3
+  ${conversionList
+    .map(
+      (conversion) =>
+        `#EXT-X-STREAM-INF:BANDWIDTH=${conversion.bitrate * 1000},RESOLUTION=${conversion.width}x${conversion.height}\n${fileId}/${conversion.height}`
+    )
+    .join("\n")}\n`;
+
+    try {
+      fs.writeFileSync(`${outputDir}/master.m3u8`, masterPlaylist);
+      resolve();
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
-function convertVideo(conversion, outputDir, res) {
-  fs.mkdirSync(`${outputDir}/${conversion.height}p_segments`);
+function modifyResolutionPlaylist(height, outputDir) {
+  return new Promise((resolve, reject) => {
+    const playlist = `${outputDir}/${height}p.m3u8`;
+    const playlistFile = fs.readFileSync(playlist, "utf-8");
 
-  ffmpeg(`${outputDir}/original`)
-    .size(`${conversion.width}x${conversion.height}`)
-    .videoBitrate(conversion.bitrate)
-    .outputOptions([
-      "-preset faster",
-      "-x264opts opencl",
-      "-hls_time 2",
-      "-hls_playlist_type vod",
-      `-hls_segment_filename ${outputDir}/${conversion.height}p_segments/${conversion.height}_segment_%03d.ts`,
-    ])
-    .on("error", function (error) {
-      console.log(error);
-      res.write(
-        JSON.stringify({
-          format: `${conversion.height}p`,
-          status: "error",
-        })
-      );
-    })
-    .on("end", function () {
-      conversionsCompleted++;
+    const lines = playlistFile.split("\n");
 
-      if (conversionsCompleted === conversionList.length) {
-        createMasterPlaylist(outputDir, res);
+    let modifiedPlaylist = "";
+
+    lines.forEach((line) => {
+      if (line) {
+        if (!line.startsWith("#")) {
+          modifiedPlaylist += `${height}/${line.split(".")[0].split("_").pop()}\n`;
+        } else {
+          modifiedPlaylist += `${line}\n`;
+        }
       }
-      res.write(
-        JSON.stringify({
-          format: `${conversion.height}p`,
-          status: "finish",
-        })
-      );
-    })
-    .on("progress", function (progress) {
-      res.write(
-        JSON.stringify({
-          format: `${conversion.height}p`,
-          status: progress.percent,
-        })
-      );
-    })
-    .output(`${outputDir}/${conversion.height}p.m3u8`)
-    .run();
+    });
+
+    try {
+      fs.writeFileSync(playlist, modifiedPlaylist);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function convertVideo(conversion, outputDir) {
+  return new Promise((resolve, reject) => {
+    fs.mkdirSync(`${outputDir}/${conversion.height}p_segments`);
+
+    ffmpeg(`${outputDir}/original`)
+      .size(`${conversion.width}x${conversion.height}`)
+      .videoBitrate(conversion.bitrate)
+      .outputOptions([
+        `-preset ${conversion.preset}`,
+        "-x264opts opencl",
+        "-hls_time 2",
+        "-hls_playlist_type vod",
+        "-movflags +faststart",
+        `-hls_segment_filename ${outputDir}/${conversion.height}p_segments/${conversion.height}_segment_%03d.ts`,
+      ])
+      .on("error", function (error) {
+        reject(error);
+      })
+      .on("end", function () {
+        resolve();
+      })
+      .output(`${outputDir}/${conversion.height}p.m3u8`)
+      .run();
+  });
 }
 
 module.exports = async (req, res) => {
@@ -87,7 +104,32 @@ module.exports = async (req, res) => {
   const fileId = req.params.id;
   const outputDir = `${process.env.STORAGE_LOCATION}/${fileId}`; // Folder for upload
 
-  conversionList.forEach((conversion) => {
-    convertVideo(conversion, outputDir, res);
-  });
+  if (!File.findById(fileId)) {
+    return res.status(404).send({ status: "error", message: "File not found" });
+  }
+
+  const { fileResolution } = await getVideoData(`${outputDir}/original`);
+
+  try {
+    for (const conversion of conversionList) {
+      if(conversion.height <= fileResolution){
+        await convertVideo(conversion, outputDir);
+        await modifyResolutionPlaylist(conversion.height, outputDir);
+      }
+    }
+
+    await File.findByIdAndUpdate(fileId, { converted: true });
+
+    await createMasterPlaylist(fileId, outputDir);
+
+    res.json({
+      status: "success",
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      status: "error",
+      message: error.message,
+    });
+  }
 };

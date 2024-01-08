@@ -1,5 +1,4 @@
 const File = require("../../models/File");
-const ShareKey = require("../../models/ShareKey");
 
 const { formatBytes, sortByName, sortByViews, sortBySize, sortByType } = require("../utils");
 
@@ -21,55 +20,44 @@ module.exports = async (req, res) => {
   if (req.isAuthenticated()) {
     try {
       const files = await File.find({}); // Fetch all files from the database
-      const shareKeys = await ShareKey.find(); // Fetch all share keys from the database
 
-      // Iterate through each file to determine isShared status
-      let filesWithSharedStatus = files.map((file) => {
-        const shareableLink = shareKeys.find((shareKey) => shareKey.file.toString() === file._id.toString());
-
+      let finalFiles = files.map((file) => {
         const fileObject = file.toObject();
 
-        const object = {
+        return {
           _id: fileObject._id,
           name: fileObject.name,
           size: fileObject.size,
-          type: fileObject.mimeType,
-          viewCount: shareableLink !== undefined ? shareableLink.views : 0,
-        }; // Add isShared property to the file object
-
-        if (shareKeys.length > 0) {
-          return {
-            ...object,
-            isShared: shareableLink !== undefined,
-            shareableLink: shareableLink !== undefined && shareableLink.key,
-          };
-        } else {
-          return object;
-        }
+          converted: fileObject.converted,
+          views: fileObject.views,
+        };
       });
 
       const queryParams = req.query;
 
       if (queryParams) {
         if (queryParams.sort === "name") {
-          sortByName(filesWithSharedStatus, queryParams.dir);
+          sortByName(finalFiles, queryParams.dir);
         } else if (queryParams.sort === "size") {
-          sortBySize(filesWithSharedStatus, queryParams.dir);
+          sortBySize(finalFiles, queryParams.dir);
         } else if (queryParams.sort === "type") {
-          sortByType(filesWithSharedStatus, queryParams.dir);
+          sortByType(finalFiles, queryParams.dir);
         } else if (queryParams.sort === "views") {
-          sortByViews(filesWithSharedStatus, queryParams.dir);
+          sortByViews(finalFiles, queryParams.dir);
         } else {
-          sortByName(filesWithSharedStatus);
+          sortByName(finalFiles);
         }
 
         if (queryParams.search) {
-          filesWithSharedStatus = searchByName(filesWithSharedStatus, queryParams.search);
+          finalFiles = searchByName(finalFiles, queryParams.search);
         }
       }
 
       res.json({
-        files: filesWithSharedStatus.map((file) => ({ ...file, size: formatBytes(file.size) })),
+        files: finalFiles.map((file) => ({
+          ...file,
+          size: formatBytes(file.size),
+        })),
         sort: isEmpty(queryParams) ? { sort: "name", dir: "asc" } : { sort: queryParams.sort, dir: queryParams.dir },
         search: queryParams.search ? queryParams.search : null,
       });

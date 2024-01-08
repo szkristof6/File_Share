@@ -7,31 +7,27 @@ require("./mongodb"); // Connect to MongoDB
 // Endpoint to display files using EJS
 app.get("/", (req, res) => (!req.isAuthenticated() ? res.redirect("/auth/google") : res.redirect("/search")));
 
+app.get("/up", (req, res) => res.json({ status: "up" }));
+
 app.get("/search", require("./routes/render/search"));
 app.get("/search/get", require("./routes/search/getFiles"));
 
 app.get("/upload", require("./routes/render/upload"));
 
-// Route to remove the share link associated with a file
-app.delete("/removeShare/:id", require("./routes/share/removeShare"));
-
-// Route to share a file and generate a unique shareable link
-app.post("/share/:id", require("./routes/share/shareFile"));
-
 // Route to view a file using shareable link
-app.get("/:shareableLink", require("./routes/share/viewShare"));
+app.get("/:link", require("./routes/render/view"));
 
 // Route to get a file using shareable link
-app.get("/get/:shareableLink", require("./routes/share/getShare"));
+app.get("/get/:link", require("./routes/video/getMasterPlaylist"));
 
-app.get("/get/:shareableLink/:resolution", require("./routes/share/getShareResolution"));
+app.get("/get/:link/:resolution", require("./routes/video/getResolutionPlaylist"));
 
-app.get("/get/:shareableLink/:resolution/:segmentId", require("./routes/share/getShareSegment"));
+app.get("/get/:link/:resolution/:segmentId", require("./routes/video/getResolutionSegment"));
 
 // Route to upload a file
 app.post("/upload", require("./routes/upload/uploadFile"));
 
-app.get("/convert/:id", require("./routes/upload/convertFile"));
+app.post("/convert/:id", require("./routes/upload/convertFile"));
 
 // Route for file removal
 app.post("/delete/:id", require("./routes/upload/deleteFile"));

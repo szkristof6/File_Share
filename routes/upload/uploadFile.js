@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
   for (let fileKey in uploadedFiles) {
     const uploadedFile = uploadedFiles[fileKey];
 
-    if (!uploadedFile.name.match(/\.(mp4|mov|avi)$/)) {
+    if (!uploadedFile.mimetype.startsWith("video")) {
       return res.status(400).json({ error: "Please upload a valid video file." });
     }
 
