@@ -24,18 +24,18 @@ async function main() {
     console.log(`Started converting H265 - ${detail}`);
 
     try {
-      await convertVideo(detail);
-
-      const endTime = performance.now();
-
-      console.log(
-        `H265 - ${detail} conversion took ${endTime - startTime} milliseconds`
-      );
+      convertVideo(detail).then(() => {
+        const endTime = performance.now();
+  
+        console.log(
+          `H265 - ${detail} conversion took ${endTime - startTime} milliseconds`
+        );
+      });
+      
     } catch (error) {
       console.error(error);
     }
   }
-  console.log("Done H265 conversion.");
 }
 
 module.exports = main;

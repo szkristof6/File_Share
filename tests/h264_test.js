@@ -24,18 +24,18 @@ async function main() {
     console.log(`Started converting ${detail}`);
 
     try {
-      await convertVideo(detail);
+      convertVideo(detail).then(() => {
+        const endTime = performance.now();
+  
+        console.log(
+          `H264 - ${detail} conversion took ${endTime - startTime} milliseconds`
+        );
+      });
 
-      const endTime = performance.now();
-
-      console.log(
-        `H264 - ${detail} conversion took ${endTime - startTime} milliseconds`
-      );
     } catch (error) {
       console.error(error);
     }
   }
-  console.log("Done H264 conversion.");
 }
 
 module.exports = main;
