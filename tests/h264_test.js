@@ -40,7 +40,7 @@ module.exports = main;
 function convertVideo(detail) {
   return new Promise((resolve, reject) => {
     ffmpeg(inputfile)
-      .videoCodec("h264_videotoolbox")
+      .videoCodec("libx264")
       .size(`?x1080`)
       .videoBitrate(5000)
       .outputOptions([`-preset ${detail}`, "-x264opts opencl"])

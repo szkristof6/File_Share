@@ -39,7 +39,7 @@ module.exports = main;
 function convertVideo(detail) {
   return new Promise((resolve, reject) => {
     ffmpeg(inputfile)
-      .videoCodec("hevc_videotoolbox")
+      .videoCodec("libx265")
       .size(`?x1080`)
       .videoBitrate(5000)
       .outputOptions([`-preset ${detail}`])
