@@ -20,6 +20,9 @@ module.exports = async (req, res) => {
 
     res.render("video", { link });
   } catch (error) {
-    console.error(error);
+    return res.status(404).json({
+      status: "error",
+      message: "File not found",
+    });
   }
 };

@@ -22,11 +22,12 @@ function getVideoData(file) {
   });
 }
 
-function createMasterPlaylist(fileId, outputDir) {
+function createMasterPlaylist(fileId, fileResolution, outputDir) {
   return new Promise((resolve, reject) => {
     const masterPlaylist = `#EXTM3U
   #EXT-X-VERSION:3
   ${conversionList
+    .filter((x) => x.height <= fileResolution)
     .map(
       (conversion) =>
         `#EXT-X-STREAM-INF:BANDWIDTH=${conversion.bitrate * 1000},RESOLUTION=${conversion.width}x${conversion.height}\n${fileId}/${conversion.height}`
@@ -112,7 +113,7 @@ module.exports = async (req, res) => {
 
   try {
     for (const conversion of conversionList) {
-      if(conversion.height <= fileResolution){
+      if (conversion.height <= fileResolution) {
         await convertVideo(conversion, outputDir);
         await modifyResolutionPlaylist(conversion.height, outputDir);
       }
@@ -120,7 +121,7 @@ module.exports = async (req, res) => {
 
     await File.findByIdAndUpdate(fileId, { converted: true });
 
-    await createMasterPlaylist(fileId, outputDir);
+    await createMasterPlaylist(fileId, fileResolution, outputDir);
 
     res.json({
       status: "success",

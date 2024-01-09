@@ -10,19 +10,19 @@ const conversionList = [
     width: 256,
     height: 144,
     bitrate: 300,
-    preset: "ultrafast",
+    preset: "faster",
   },
   {
     width: 426,
     height: 240,
     bitrate: 700,
-    preset: "superfast",
+    preset: "faster",
   },
   {
     width: 640,
     height: 360,
     bitrate: 1000,
-    preset: "veryfast",
+    preset: "faster",
   },
   {
     width: 854,
