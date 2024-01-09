@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="/images/favicon.png" />
 
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link href="https://vjs.zencdn.net/8.9.0/video-js.css" rel="stylesheet" />
+    <link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet" />
 
     <link href="/css/video.css" rel="stylesheet" />
   </head>
@@ -17,16 +18,18 @@
     </div>
 
     <!-- Video Player -->
-    <div class="container" style="width: 960px; height: 540px">
-      <video controls playsinline>
+    <div class="container">
+      <video playsinline id="video" class="video-js vjs-theme-forest" controls preload="auto" width="960" height="540">
         <source src="/get/<%= link %>" type="application/x-mpegURL" />
         Your browser does not support the video tag.
       </video>
     </div>
 
     <!-- Include Video.js library -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://vjs.zencdn.net/7.4.1/video.min.js"></script>
+    <script src="/js/dist/videojs-contrib-quality-levels.js"></script>
+    <script src="/js/dist/videojs-http-source-selector.js"></script>
+    <script src="https://unpkg.com/browse/@videojs/http-streaming@3.9.1/dist/videojs-http-streaming.min.js"></script>
 
     <script src="/js/video.js"></script>
   </body>

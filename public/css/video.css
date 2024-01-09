@@ -14,3 +14,7 @@ body {
   border-radius: 15px;
   overflow: hidden;
 }
+
+.video-js.vjs-http-source-selector {
+  display: block;
+}
