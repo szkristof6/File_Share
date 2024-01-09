@@ -68,10 +68,10 @@ document.addEventListener("DOMContentLoaded", () => {
       new Plyr(video, defaultOptions);
     });
 
+    
+
     hls.attachMedia(video);
     window.hls = hls;
-  } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-    video.src = source;
   } else {
     // default options with no quality update in case Hls is not supported
     new Plyr(video, defaultOptions);
