@@ -26,12 +26,7 @@ app.use(
   })
 );
 
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: __dirname + "/tmp/",
-  })
-);
+app.use(fileUpload());
 
 // Disable X-Powered-By header
 app.disable("x-powered-by");
