@@ -29,7 +29,7 @@ function createManifestFile(fileResolution, outputDir) {
     .map((x) => `${outputDir}/${x.height}p.mp4`)
     .join(" ");
 
-  const command = `MP4Box -dash 2000 -rap -frag-rap -profile dashavc264:live -out ${outputDir}/manifest.mpd ${inputFiles}`;
+  const command = `MP4Box -dash 100 -rap -frag-rap -profile dashavc264:onDemand -out ${outputDir}/manifest.mpd ${inputFiles}`;
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
