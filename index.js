@@ -1,4 +1,5 @@
 require("dotenv").config();
+const express = require("express");
 
 const app = require("./middlewares");
 
@@ -17,12 +18,7 @@ app.get("/upload", require("./routes/render/upload"));
 // Route to view a file using shareable link
 app.get("/:link", require("./routes/render/view"));
 
-// Route to get a file using shareable link
-app.get("/get/:link", require("./routes/video/getMasterPlaylist"));
-
-app.get("/get/:link/:resolution", require("./routes/video/getResolutionPlaylist"));
-
-app.get("/get/:link/:resolution/:segmentId", require("./routes/video/getResolutionSegment"));
+app.use('/get', express.static('uploads'));
 
 // Route to upload a file
 app.post("/upload", require("./routes/upload/uploadFile"));

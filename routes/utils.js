@@ -18,6 +18,7 @@ const conversionList = [
     bitrate: 700,
     preset: "faster",
   },
+  /* 
   {
     width: 640,
     height: 360,
@@ -54,6 +55,7 @@ const conversionList = [
     bitrate: 12000,
     preset: "slower",
   },
+  */
 ];
 
 function formatBytes(bytes, decimals = 2) {

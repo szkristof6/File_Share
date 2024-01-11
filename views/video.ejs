@@ -4,12 +4,13 @@
     <title>MEG - Video Player</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/images/favicon.png" />
-
-    <link href="https://vjs.zencdn.net/8.9.0/video-js.css" rel="stylesheet" />
-    <link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet" />
 
     <link href="/css/video.css" rel="stylesheet" />
+
+    <!-- Shaka player -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.3/shaka-player.ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.3/controls.min.css" />
   </head>
   <body>
     <!-- Logo -->
@@ -17,20 +18,50 @@
       <img src="/images/logo.png" alt="Logo" height="100" />
     </div>
 
-    <!-- Video Player -->
-    <div class="container">
-      <video playsinline id="video" class="video-js vjs-theme-forest" controls preload="auto" width="960" height="540">
-        <source src="/get/<%= link %>" type="application/x-mpegURL" />
-        Your browser does not support the video tag.
-      </video>
+    <div data-shaka-player-container style="max-width: 40em" data-shaka-player-cast-receiver-id="07AEE832">
+      <video autoplay data-shaka-player id="video" style="width: 100%; height: 100%"></video>
     </div>
+    <script>
+      const manifestUri = "/get/<%= link %>/manifest.mpd";
 
-    <!-- Include Video.js library -->
-    <script src="https://vjs.zencdn.net/7.4.1/video.min.js"></script>
-    <script src="/js/plugins/videojs-contrib-quality-levels.js"></script>
-    <script src="/js/plugins/videojs-http-source-selector.js"></script>
-    <script src="https://unpkg.com/browse/@videojs/http-streaming@3.9.1/dist/videojs-http-streaming.min.js"></script>
+      async function init() {
+        const video = document.getElementById("video");
+        const ui = video["ui"];
+        const controls = ui.getControls();
+        const player = controls.getPlayer();
 
-    <script src="/js/video.js"></script>
+        window.player = player;
+        window.ui = ui;
+
+        player.addEventListener("error", onPlayerErrorEvent);
+        controls.addEventListener("error", onUIErrorEvent);
+
+        try {
+          await player.load(manifestUri);
+          console.log("The video has now been loaded!");
+        } catch (error) {
+          onPlayerError(error);
+        }
+      }
+
+      function onPlayerErrorEvent(errorEvent) {
+        onPlayerError(event.detail);
+      }
+
+      function onPlayerError(error) {
+        console.error("Error code", error.code, "object", error);
+      }
+
+      function onUIErrorEvent(errorEvent) {
+        onPlayerError(event.detail);
+      }
+
+      function initFailed(errorEvent) {
+        console.error("Unable to load the UI library!");
+      }
+
+      document.addEventListener("shaka-ui-loaded", init);
+      document.addEventListener("shaka-ui-load-failed", initFailed);
+    </script>
   </body>
 </html>
