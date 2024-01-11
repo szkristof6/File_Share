@@ -18,8 +18,9 @@ app.get("/upload", require("./routes/render/upload"));
 // Route to view a file using shareable link
 app.get("/:link", require("./routes/render/view"));
 
-app.use('/get', express.static(process.env.STORAGE_LOCATION));
-
+app.get("/get/:link", require("./routes/share/getShare"));
+app.get("/get/:link/:resolution", require("./routes/share/getShareResolution"));
+app.get("/get/:link/:resolution/:segmentId", require("./routes/share/getShareSegment"));
 // Route to upload a file
 app.post("/upload", require("./routes/upload/uploadFile"));
 

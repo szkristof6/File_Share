@@ -4,6 +4,8 @@ require("dotenv").config();
 
 const File = require("../../models/File");
 
+const { geenrateUniqueId } = require("../utils");
+
 module.exports = async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).send({ status: "error", message: "Not logged in!" });
@@ -27,6 +29,7 @@ module.exports = async (req, res) => {
       name: uploadedFile.name,
       size: uploadedFile.size,
       owner: req.user._json.email,
+      link: geenrateUniqueId(),
     });
 
     // Save the file information to MongoDB

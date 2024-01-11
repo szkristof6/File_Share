@@ -25,7 +25,8 @@ module.exports = async (req, res) => {
         const fileObject = file.toObject();
 
         return {
-          _id: fileObject._id,
+          id: fileObject._id,
+          link: fileObject.link,
           name: fileObject.name,
           size: fileObject.size,
           converted: fileObject.converted,

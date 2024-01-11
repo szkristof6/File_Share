@@ -1,9 +1,26 @@
 const checkDiskSpace = require("check-disk-space").default;
 const { v4: uuidv4 } = require("uuid");
+const ffmpeg = require("fluent-ffmpeg");
 
 require("dotenv").config();
 
 const geenrateUniqueId = () => `${uuidv4()}-${Date.now()}`;
+
+function getVideoData(file) {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(file, (error, metadata) => {
+      if (error) {
+        console.error("Error while probing:", error);
+        reject(error);
+      }
+
+      resolve({
+        fileResolution: metadata.streams[0].coded_width ? metadata.streams[0].height : metadata.streams[1].height,
+        fileBitrate: metadata.format.bit_rate,
+      });
+    });
+  });
+}
 
 const conversionList = [
   {
@@ -127,6 +144,7 @@ function sortByViews(list, dir) {
 }
 
 module.exports = {
+  getVideoData,
   conversionList,
   geenrateUniqueId,
   formatBytes,

@@ -1,62 +1,61 @@
 const ffmpeg = require("fluent-ffmpeg");
-const { exec } = require("child_process");
 const fs = require("fs");
 
 require("dotenv").config();
 
 const File = require("../../models/File");
-const { conversionList } = require("../utils");
+const { conversionList, getVideoData } = require("../utils");
 
-function getVideoData(file) {
+function modifyResolutionPlaylist(height, outputDir) {
   return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(file, (error, metadata) => {
-      if (error) {
-        console.error("Error while probing:", error);
-        reject(error);
-      }
+    const playlist = `${outputDir}/${height}p.m3u8`;
+    const playlistFile = fs.readFileSync(playlist, "utf-8");
 
-      resolve({
-        fileResolution: metadata.streams[0].coded_width ? metadata.streams[0].height : metadata.streams[1].height,
-        fileBitrate: metadata.format.bit_rate,
-      });
-    });
-  });
-}
+    const lines = playlistFile.split("\n");
 
-function createManifestFile(fileResolution, outputDir) {
-  const inputFiles = conversionList
-    .filter((x) => x.height <= fileResolution)
-    .map((x) => `${outputDir}/${x.height}p.mp4`)
-    .join(" ");
+    let modifiedPlaylist = "";
 
-  const command = `MP4Box -dash 100 -rap -frag-rap -profile dashavc264:onDemand -out ${outputDir}/manifest.mpd ${inputFiles}`;
-
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error generating DASH manifest: ${stderr}`);
-        reject(error);
-      } else {
-        console.log(`DASH manifest generated successfully: ${outputDir}`);
-        resolve();
+    lines.forEach((line) => {
+      if (line) {
+        if (!line.startsWith("#")) {
+          modifiedPlaylist += `${height}/${line.split(".")[0].split("_").pop()}\n`;
+        } else {
+          modifiedPlaylist += `${line}\n`;
+        }
       }
     });
+
+    try {
+      fs.writeFileSync(playlist, modifiedPlaylist);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
 function convertVideo(conversion, outputDir) {
   return new Promise((resolve, reject) => {
+    fs.mkdirSync(`${outputDir}/${conversion.height}p_segments`);
+
     ffmpeg(`${outputDir}/original`)
       .size(`${conversion.width}x${conversion.height}`)
       .videoBitrate(conversion.bitrate)
-      .outputOptions([`-preset ${conversion.preset}`, "-x264opts opencl"])
+      .outputOptions([
+        `-preset ${conversion.preset}`,
+        "-x264opts opencl",
+        "-hls_time 2",
+        "-hls_playlist_type vod",
+        "-movflags +faststart",
+        `-hls_segment_filename ${outputDir}/${conversion.height}p_segments/${conversion.height}_%03d.ts`,
+      ])
       .on("error", function (error) {
         reject(error);
       })
       .on("end", function () {
         resolve();
       })
-      .output(`${outputDir}/${conversion.height}p.mp4`)
+      .output(`${outputDir}/${conversion.height}p.m3u8`)
       .run();
   });
 }
@@ -79,10 +78,9 @@ module.exports = async (req, res) => {
     for (const conversion of conversionList) {
       if (conversion.height <= fileResolution) {
         await convertVideo(conversion, outputDir);
+        await modifyResolutionPlaylist(conversion.height, outputDir);
       }
     }
-
-    //await createManifestFile(fileResolution, outputDir);
 
     await File.findByIdAndUpdate(fileId, { converted: true });
 

@@ -5,7 +5,7 @@ module.exports = async (req, res) => {
 
   try {
     // Find the file associated with the ShareKey
-    const file = await File.findById(link);
+    const file = await File.findOne({ link });
 
     if (!file) {
       return res.status(404).json({
@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
 
     const updatedViews = (file.views += 1);
 
-    await File.findByIdAndUpdate(link, { views: updatedViews });
+    await File.findOneAndUpdate({link}, { views: updatedViews });
 
     res.render("video", { link });
   } catch (error) {

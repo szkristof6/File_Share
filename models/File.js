@@ -5,6 +5,7 @@ const fileSchema = new mongoose.Schema({
   name: String,
   size: Number,
   owner: String,
+  link: String,
   converted: {
     type: Boolean,
     default: false,

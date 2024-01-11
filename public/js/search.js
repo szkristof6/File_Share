@@ -157,7 +157,7 @@ function createRemoveButton(parent, file) {
 
       modal.hide();
 
-      fetch(`/delete/${file._id}`, {
+      fetch(`/delete/${file.id}`, {
         method: "POST",
       })
         .then((response) => {
@@ -256,7 +256,7 @@ function displayData(data) {
 
         if (element === file.name) {
           if (file.converted) {
-            createNameWithLink(td, file._id, element);
+            createNameWithLink(td, file.link, element);
           } else {
             td.innerText = element;
           }
