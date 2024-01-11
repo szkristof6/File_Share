@@ -26,7 +26,12 @@ app.use(
   })
 );
 
-app.use(fileUpload());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: process.env.STORAGE_LOCATION + "/tmp/",
+  })
+);
 
 // Disable X-Powered-By header
 app.disable("x-powered-by");
