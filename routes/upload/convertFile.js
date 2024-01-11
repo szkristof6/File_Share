@@ -82,7 +82,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    await createManifestFile(fileResolution, outputDir);
+    //await createManifestFile(fileResolution, outputDir);
 
     await File.findByIdAndUpdate(fileId, { converted: true });
 
